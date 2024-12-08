@@ -15,12 +15,26 @@ Una vez armado el grafo se transformaran los nodos a vectores utilizando la téc
 
 ## Configuración Inicial
 
-Clonar el Repositorio
+1. Clonar el Repositorio
 
 ```bash
 git clone https://github.com/devrr0/Hito-3.git
 cd Hito-3
 ```
+
+2. Crear y activar un entorno virtual para aislar las dependencias del proyecto
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+3. Instalar las dependencias necesarias con el entorno virtual activado.
+
+```bash
+pip install -r requirements.txt
+```
+
 Ya estás dentro del proyecto de git
 ```bash
 git status  # estado de la rama
