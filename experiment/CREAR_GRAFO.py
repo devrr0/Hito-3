@@ -4,8 +4,11 @@ import re
 import numpy as np
 import os
 import time
+from joblib import Parallel,delayed
 from tqdm import tqdm
 
+print("Cargando DataSet...")
+t0= time()
 #----------------------------------------------------------------------------
 # CARGAR PARQUET
 df_path = os.getcwd() + "\\DATA\\parsed_data_public.parquet"
@@ -44,6 +47,7 @@ df = df[df["d_country"].isin(top_paises)]
 # Solterx
 df = df[df["d_relationship"]=="Single"]
 
+print("DataSet cargado.")
 #------------------------------------------------------------------------------------
 
 # NUM NODOS Y LISTA DE INDICES
@@ -55,59 +59,46 @@ def w(i,j):
     X=df.iloc[i]
     Y=df.iloc[j]
     
-    # AGE
-    X_AGE= int((X["lf_min_age"] <= Y["d_age"]) and (X["lf_max_age"] >= Y["d_age"]))
-    Y_AGE= int((Y["lf_min_age"] <= X["d_age"]) and (Y["lf_max_age"] >= X["d_age"]))
-    AGE = X_AGE*Y_AGE
-
-    # WANT
-    if X["lf_want"] == "Everyone":
-        X_WANT=1
-    else:
-        X_WANT = int(X["lf_want"] == Y["gender2"])
-
-    if Y["lf_want"] == "Everyone":
-        Y_WANT=1
-    else:
-        Y_WANT = int(Y["lf_want"] == X["gender2"])
-
-    WANT= X_WANT * Y_WANT
-    
     # LOCATION
-    if (X["lf_location"] == "Near me") or (Y["lf_location"] == "Near me"):
-        LOC=int(X["d_country"]==Y["d_country"])
-    else:
-        LOC=1    
-
+    LOC = X["d_country"] == Y["d_country"] or (X["lf_location"] == Y["lf_location"] == "Located anywhere")
+    if not LOC:
+        return ""
+    
+    # WANT
+    X_WANT = X["lf_want"] == Y["gender2"] or X["lf_want"] == "Everyone" 
+    Y_WANT = Y["lf_want"] == X["gender2"] or Y["lf_want"] == "Everyone"
+    WANT= X_WANT and Y_WANT
+    if not WANT:
+        return ""
+    
+    # AGE
+    X_AGE= X["lf_min_age"] <= Y["d_age"] <= X["lf_max_age"]
+    Y_AGE= Y["lf_min_age"] <= X["d_age"] <= Y["lf_max_age"]
+    AGE = X_AGE and Y_AGE
+    if not AGE:
+        return ""
+    
     # FOR
     x_list = X["lf_for"].split(", ")
     y_list = Y["lf_for"].split(", ")
-    e_for = len(set(x_list) & set(y_list))
+    FOR = len(set(x_list) & set(y_list)) > 0
+    if not FOR:
+        return ""
     
-    if e_for > 0:
-        FOR = 1
-    else:
-        FOR = 0
-    
-    return bool(AGE*WANT*LOC*FOR)
+    return f"{indices[i]} {indices[j]}\n"
 
 # ESCRITURA DEL GRAFO
 
 # Nombre del archivo a crear
 nombre_archivo = "grafo_real.txt"
+print(f"Creando '{nombre_archivo}'...")
 
-# Crear y escribir el archivo
+# CREAR LINEAS CON PARALELIZACION
+pares = [(i,j) for i in range(N//8) for j in range(i+1,N//8)]
+lineas = Parallel(n_jobs=8)(delayed(w)(*par) for par in tqdm(pares))
+
+# ESCRIBIR LINEAS
 with open(nombre_archivo, "w") as archivo:    
-    for i in tqdm(range(N)):
-        for j in range(i+1,N):
-            if w(i,j):
-                archivo.write(f"{indices[i]} {indices[j]}\n")
+    archivo.writelines(lineas)
         
-        # Borra la línea anterior sobrescribiéndola con espacios
-        #print(f"\r{' ' * 50}", end="",flush=True)  # Limpia la línea actual
-        #print(f"\r{round((100*(i+1))/(N//10),2)}% de grafo completado", end="",flush=True)
-        
-        # Pausa para simular tiempo de procesamiento
-        #time.sleep(0.001)
-
-print("\n'grafo_real.txt' creado, programa finalizado.\n")
+print(f"\n'{nombre_archivo}' creado, programa finalizado. Tiempo total: {round((time()-t0)/3600,3)} horas")
