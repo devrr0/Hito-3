@@ -73,12 +73,12 @@ git push origin feature-nueva-funcionalidad
 
 4. Abrir un Pull Request 
 
-Ve a GitHub y abre un Pull Request desde la rama feature-nueva-funcionalidad hacia develop. El PR permite que otros miembros  revisen los cambios antes de que se fusionen en la rama develop.
+Ve a GitHub y abre un Pull Request desde la rama feature-nueva-funcionalidad hacia master. El PR permite que otros miembros revisen los cambios antes de que se fusionen en la rama master.
 
 5. Revisar y Fusionar el Pull Request
 Después de que haya sido revisado y aprobado.
 
- Fusiona la rama feature-nueva-funcionalidad en develop. Esto se hace en la interfaz de GitHub haciendo clic en "Merge pull request".
+ Fusiona la rama feature-nueva-funcionalidad en master. Esto se hace en la interfaz de GitHub haciendo clic en "Merge pull request".
 
 
 ## Datos del experimento
@@ -150,6 +150,7 @@ Hito-3/
 │   ├── embedding.txt                   # Embedding del grafo
 │   ├── grafo_real.txt                  # Grafo original
 │   └── vec_emb.csv                     # Embedding 
+├── requirements.txt                    # Requerimientos del proyecto
 └── README.md                           # Documentación del proyecto
 ```
 
