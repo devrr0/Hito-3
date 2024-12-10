@@ -6,6 +6,7 @@
 - [Contribuir al Proyecto](#contribuir-al-proyecto)
 - [Datos del Experimento](#datos-del-experimento)
 - [Metodología](#metodología)
+- [Referencias](#referencias)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 
 ## Descripción
@@ -128,6 +129,10 @@ python CREAR_CSV.py
 
 5. Analizar clusters con los datos
  
+
+## Referencias
+
+Martinez, T. (2019). Node2vec [Repositorio de GitHub]. GitHub. https://github.com/thibaudmartinez/node2vec
 
 ## Estructura del Proyecto
 
